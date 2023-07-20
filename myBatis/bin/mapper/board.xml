@@ -2,14 +2,92 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-  
-<!-- namespace = "보통 자바 패키지명"   -->
+
+<!-- namespace = "보통 자바 패키지명" -->
 <mapper namespace="board.dao.BoardDAO">
+
+	<sql id="selectBoard">
+		select * from t_board
+	</sql>
+
+	<!-- 컬럼명과 vo의 변수명 다른 것 직접 매핑 -->
+	<resultMap type="board" id="boardMap">
+		<result column="view_cnt" property="viewCnt" />
+		<result column="reg_date" property="regDate" />
+	</resultMap>
 
 	<!-- 다른 곳에서 실행할 때 실제 주소 : board.dao.BoardDAO.insert -->
 	<!-- 쿼리문에 ; 붙이면 안됨!! -->
- 	<insert id="insert" parameterType="java.lang.String"> 
-		insert into t_board(no, title, writer) values(seq_t_board_no.nextval, #{title}, '홍길동')
+	<!-- <insert id="insert" parameterType="java.lang.String"> -->
+	<!-- <insert id="insert" parameterType="board.vo.BoardVO"> --> 
+	<insert id="insert" parameterType="board">
+		insert into t_board(no, title, writer) values(seq_t_board_no.nextval,
+		#{title}, #{writer})
 	</insert>
+
+	<!-- resultMap으로 매핑한 것으로 반환 -->
+	<select id="selectAll2" resultMap="boardMap">
+		select *
+		from t_board
+		order by no desc
+	</select>
+
+	<select id="selectAll" resultType="board">
+		select no, title, writer,
+		content, view_cnt as viewCnt, reg_date as regDate
+		from t_board
+		order by no desc
+	</select>
+
+	<select id="selectByNo" parameterType="int" resultMap="boardMap">
+		select *
+		from t_board
+		where no = #{no}
+	</select>
+
+	<select id="selectByNo2" parameterType="board"
+		resultMap="boardMap">
+		<include refid="selectBoard" />
+		where no = #{no}
+	</select>
+	
+	<select id="selectWhere" parameterType="board" resultMap="boardMap">
+		<include refid="selectBoard" />
+		<where>
+			<if test="title != null">
+				title = #{title}  
+			</if>
+			<if test="writer != null">
+				and writer = #{writer}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectWhere2" parameterType="map" resultMap="boardMap">
+		<include refid="selectBoard" />
+		<where>
+			<if test="title != null">
+				title = #{title}  
+			</if>
+			<if test="writer != null">
+				and writer = #{writer}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectWhere3" parameterType="map" resultType="map">
+		<include refid="selectBoard" />
+		<where>
+			no = #{no}
+		</where>
+	</select>
+	
+	<select id="selectNos" parameterType="int[]" resultMap="boardMap">
+		<include refid="selectBoard" />
+			where no in 
+				<foreach collection="array" item="bno" separator="," open="(" close=")">
+					#{bno}
+				</foreach>
+	</select>
 
 </mapper>
