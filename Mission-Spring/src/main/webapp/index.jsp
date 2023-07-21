@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<a>게시판</a>
+	<a href="${pageContext.request.contextPath}/board">게시판</a>
 </body>
 </html>
